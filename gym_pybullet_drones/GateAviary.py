@@ -11,8 +11,8 @@ import time
 import sys
 sys.path.append('../')
 
-from gym_pybullet_drones.envs.DynAviary import DynAviary  # to give input as thrust and torques
-from gym_pybullet_drones.utils.enums import DroneModel, Physics
+from envs.DynAviary import DynAviary  # to give input as thrust and torques
+from utils.enums import DroneModel, Physics
 
 
 class GateAviary(DynAviary):

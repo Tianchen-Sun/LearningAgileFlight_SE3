@@ -10,7 +10,7 @@ from multiprocessing import Process, Array
 ## deep learning
 # Hyper-parameters 
 
-num_epochs = 100
+num_epochs = 1 #100
 batch_size = 100 # 100
 learning_rate = 1e-4
 num_cores =10 #5
@@ -33,7 +33,7 @@ def grad(inputs, outputs, gra):
 
 if __name__ == '__main__':
     for k in range(5):
-        FILE = "nn_pre"
+        FILE = "nn_pre.pth"
         model = torch.load(FILE)
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
         Iteration = []

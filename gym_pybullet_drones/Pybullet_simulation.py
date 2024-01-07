@@ -9,10 +9,17 @@ from re import T
 import time
 import numpy as np
 import pybullet as p
-
+import os
 import sys
-sys.path.append('../')
+# 获取当前 Python 工作空间的路径
+workspace_path = os.getcwd()
 
+# 将工作空间路径添加到 sys.path
+sys.path.append(workspace_path)
+
+print ("----------------------------------------")
+print (sys.path)
+print ("----------------------------------------")
 from gym_pybullet_drones.utils.enums import DroneModel, Physics
 from gym_pybullet_drones.utils.Logger import Logger
 from gym_pybullet_drones.utils.utils import sync
