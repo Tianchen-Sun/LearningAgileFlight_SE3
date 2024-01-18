@@ -54,8 +54,8 @@ class YXCtrlWrapper(SimplePIDControl):
                     np.save(f, inputs)
                 backup_path = list(os.path.splitext(INPUT_PREFERENCES))
                 backup_path.insert(1, time.strftime('_%y%m%d_%H%M%S'))
-                backup_path = os.path.join(BACKUP_FOLDER, ''.join(backup_path))
-                shutil.copy(INPUT_PREFERENCES, backup_path)
+                # backup_path = os.path.join(BACKUP_FOLDER, ''.join(backup_path))
+                # shutil.copy(INPUT_PREFERENCES, backup_path)
         else:
             inputs = nn_sample_pybullet(**gate_paras)
             print(f'>>> New simulation starts, using inputs: {inputs}')

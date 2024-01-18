@@ -1,5 +1,8 @@
 ## this file is for deep learning
-
+"""
+here, DNN1 is trained for static gate, random drone static initial position and orientation
+DNN1 should generate single one open loop MPC decision variables. supervised by finite policy gradient
+"""
 from quad_nn import *
 from quad_model import *
 from quad_policy import *
