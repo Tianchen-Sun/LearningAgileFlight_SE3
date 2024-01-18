@@ -24,14 +24,33 @@ Every_reward = np.zeros((num_epochs,batch_size))
 
 
 # for multiprocessing, obtain the gradient
+
+"""
+finite policy gradient,
+output is the decision variables z. [x,y,z,a,b,c,t_traverse]
+[a,b,c] is the theta*k, k is the rotation axis
+"""
+
 def grad(inputs, outputs, gra):
+    """ 
+
+    Args:
+        inputs (_type_): DNN1 input, [p_init,p_goal,yaw_init,gate_state]
+        outputs (_type_): DNN1 output, [x,y,z,Rx,Ry,Rz,t_traverse]
+        gra (_type_): DNN1 Reward/z gradient. [-drdx,-drdy,-drdz,-drda,-drdb,-drdc,-drdt,j])
+                        j: reward after MPC plan and execute
+    """
     gate_point = np.array([[-inputs[7]/2,0,1],[inputs[7]/2,0,1],[inputs[7]/2,0,-1],[-inputs[7]/2,0,-1]])
     gate1 = gate(gate_point)
     gate_point = gate1.rotate_y_out(inputs[8])
 
+    # quadrotor & MPC initialization
     quad1 = run_quad(goal_pos=inputs[3:6],ini_r=inputs[0:3].tolist(),ini_q=toQuaternion(inputs[6],[0,0,1]))
+
+    # initialize the narrow window
     quad1.init_obstacle(gate_point.reshape(12))
 
+    # receive the decision variables from DNN1, do the MPC, then calculate d_reward/d_z
     gra[:] = quad1.sol_gradient(quad1.ini_state,outputs[0:3],outputs[3:6],outputs[6])
 
 if __name__ == '__main__':
@@ -63,6 +82,8 @@ if __name__ == '__main__':
                     n_inputs.append(inputs)
                     n_outputs.append(outputs)
                     n_out.append(out)
+
+                    # create a gradient array for assemble all process gradient result
                     n_gra.append(gra)
 
                 #calculate gradient and loss
@@ -77,9 +98,13 @@ if __name__ == '__main__':
                 # Backward and optimize
                 for j in range(num_cores):                
                     outputs = model(n_inputs[j])
+
+                    # d_reward/d_z * z
                     loss = model.myloss(outputs,n_gra[j][0:7])        
 
                     optimizer.zero_grad()
+
+                    # d_reward/d_z * d_z/d_dnn1
                     loss.backward()
                     optimizer.step()
                     evalue += n_gra[j][7]

@@ -253,6 +253,7 @@ class Quadrotor:
         position = np.zeros((horizon, 15))
         for t in range(horizon):
             # position of COM
+            # state_traj [x,y,z,vx,vy,vz,qw,qx,qy,qz...]
             rc = state_traj[t, 0:3]
             # altitude of quaternion
             q = state_traj[t, 6:10]

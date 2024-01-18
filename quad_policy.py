@@ -67,6 +67,8 @@ class run_quad:
     def objective( self,ini_state = None,tra_pos=None,tra_ang=None,t = 3, Ulast = None):
         if ini_state is None:
             ini_state = self.ini_state
+
+        # round the traversal time, keep to one decimal place
         t = round(t,1)
         tra_atti = Rd2Rp(tra_ang)
         ## transfer the high-level parameters to traversal cost
@@ -75,12 +77,15 @@ class run_quad:
         self.uavoc1.setTraCost(self.uav1.tra_cost, t)
         # obtain solution of trajectory
         sol1 = self.uavoc1.ocSolver(ini_state=ini_state ,horizon=self.horizon,dt=self.dt, Ulast=Ulast)
+
+        # state_traj1 [x,y,z,vx,vy,vz,qw,qx,qy,qz...]
         state_traj1 = sol1['state_traj_opt']
+
         self.traj = self.uav1.get_quadrotor_position(wing_len = self.winglen, state_traj = state_traj1)
         # calculate trajectory reward
         self.collision = 0
         self.path = 0
-        ## detect whether there is detection
+        ## detect whether there is collision
         self.co = 0
         for c in range(4):
             self.collision += self.obstacle1.collis_det(self.traj[:,3*(c+1):3*(c+2)],self.horizon)
@@ -94,6 +99,9 @@ class run_quad:
     def sol_gradient(self,ini_state = None,tra_pos =None,tra_ang=None,t=None,Ulast=None):
         tra_ang = np.array(tra_ang)
         tra_pos = np.array(tra_pos)
+
+        # run the MPC to execute plan and execute based on the high-level variables
+        # j is the reward
         j = self.objective (ini_state,tra_pos,tra_ang,t)
         ## fixed perturbation to calculate the gradient
         delta = 1e-3
