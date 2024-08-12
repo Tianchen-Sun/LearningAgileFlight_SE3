@@ -1,6 +1,6 @@
 ## this file is for traversing moving narrow window
 
-
+import time
 from quad_model import *
 from quad_policy import *
 from quad_nn import *
@@ -16,6 +16,8 @@ from quad_moving import *
 # Init_angle = np.load('initial_angle.npy')
 # inputs = nn_sample(init_pos=Init_pos,final_pos=Final_pos,init_angle=Init_angle)
 inputs = nn_sample()
+inputs[0:3]=np.array([0,3.8,1.4])
+inputs[3:6]=np.array([0,-3.8,1.4])
 start_point = inputs[0:3]
 final_point = inputs[3:6]
 # np.save('start_point',start_point)
@@ -30,20 +32,20 @@ gate_point = gate1.gate_point
 gate1 = gate(gate_point)
 
 # initial traversal problem
-quad1 = run_quad(goal_pos=inputs[3:6],ini_r=inputs[0:3].tolist(),ini_q=toQuaternion(inputs[6],[0,0,1]))
+quad1 = run_quad(goal_pos=inputs[3:6],ini_r=inputs[0:3].tolist(),ini_q=toQuaternion(inputs[6],[0,0,1]),horizon=20)
 quad1.init_obstacle(gate_point.reshape(12))
 quad1.uav1.setDyn(0.01)
 
 ini_state = np.array(quad1.ini_state)
 
-horizon = 50
+horizon = 20
 
 FILE = "nn3_1.pth"
 model = torch.load(FILE)
 
 ## define the kinematics of the narrow window
-v = np.array([1,0.3,0.4])
-w = pi/2
+v = np.array([0,0.0,0.0]) #np.array([1,0.3,0.4])
+w = 0#pi/2
 gate_move, V = gate1.move(v = v ,w = w)
 
 # initialization
@@ -61,11 +63,14 @@ Ttra    = []
 T       = []
 Time    = []
 Pitch   = []
+solving_time = []
 j = 0
 for i in range(500):
     gate_n = gate(gate_move[i])
-    t = solver(model,state,final_point,gate_n,V[i],w)
-    t_tra = t+i*0.01
+    t_tra =2
+    # t = solver(self.model,self.state,self.final_point,self.gate_n,self.moving_gate.V[self.i],self.moving_gate.w)
+    t=t_tra-i*0.01
+    # t_tra = t+self.i*0.01
     gap_pitch = g_init_p + w*i*0.01
     print('step',i,'tranversal time=',t,'gap_pitch=',gap_pitch*180/pi)
     # print('step',i,'abs_tranversal time=',t_tra)
@@ -94,6 +99,9 @@ for i in range(500):
         inputs[13:16] = gate_n.t_final(final_point)
     
         out = model(inputs).data.numpy()
+
+        out[0:3]=np.array([0,0,0])
+        out[6]=1-i*0.01
         print('tra_position=',out[0:3],'tra_time_dnn2=',out[6])
     #print(out)
         # if (horizon-1*i/10) <= 30:
@@ -102,8 +110,12 @@ for i in range(500):
         #     Horizon = int(horizon-1*i/10)
 
     ## solve the mpc problem and get the control command
-        quad2 = run_quad(goal_pos=inputs[13:16],horizon =50)
+        quad2 = run_quad(goal_pos=inputs[13:16],horizon =20)
+        t_comp = time.time()
         u = quad2.get_input(inputs[0:13],u,out[0:3],out[3:6],out[6]) # control input 4-by-1 thrusts to pybullet
+         
+        print('solving time at main=',time.time()-t_comp)
+        solving_time.append(time.time()- t_comp)
         j += 1
     state = np.array(quad1.uav1.dyn_fn(state, u)).reshape(13) # Yixiao's simulation environment ('uav1.dyn_fn'), replaced by pybullet
     state_n = np.concatenate((state_n,[state]),axis = 0)
@@ -127,3 +139,6 @@ quad1.uav1.play_animation(wing_len=1.5,gate_traj1=gate_move ,state_traj=state_n)
 # quad1.uav1.plot_angularrate(state_n)
 # quad1.uav1.plot_T(control_tm)
 # quad1.uav1.plot_M(control_tm)
+plt.plot(solving_time)
+plt.title('mpc solving time at the main loop')
+plt.show()

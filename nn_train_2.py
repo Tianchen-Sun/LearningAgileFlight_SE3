@@ -11,12 +11,12 @@ device = torch.device('cpu')
 input_size = 18 
 hidden_size = 128 
 output_size = 7
-num_epochs = 16 #16*100
-batch_size = 50
+num_epochs = 16*20 #16*100
+batch_size = 20
 num_cores = 16
 learning_rate = 1e-6
 
-file1 = "nn_deep2_0"
+file1 = "nn_deep2_4"
 model1 = torch.load(file1)
 
 FILE = "nn3_1.pth"
@@ -31,7 +31,7 @@ def traj(inputs, outputs, state_traj):
     gate1 = gate(gate_point)
     gate_point = gate1.rotate_y_out(inputs[8])
 
-    quad1 = run_quad(goal_pos=inputs[3:6],ini_r=inputs[0:3].tolist(),ini_q=toQuaternion(inputs[6],[0,0,1]))
+    quad1 = run_quad(goal_pos=inputs[3:6],ini_r=inputs[0:3].tolist(),ini_q=toQuaternion(inputs[6],[0,0,1]),horizon=20)
     quad1.init_obstacle(gate_point.reshape(12))
 
     quad1.get_input(ini_state=quad1.ini_state,tra_pos=outputs[0:3],tra_ang=outputs[3:6],t=outputs[6],Ulast=[0,0,0,0])
@@ -49,6 +49,8 @@ if __name__ == '__main__':
         for _ in range(num_cores):
             # sample
             inputs = nn_sample()
+            inputs[0:3]=np.array([0,1.8,1.4])
+            inputs[3:6]=np.array([0,-1.8,1.4])
             # forward pass
             outputs = model1(inputs)
             out = outputs.data.numpy()

@@ -14,7 +14,7 @@ def Rd2Rp(tra_ang):
 
 class run_quad:
     def __init__(self, goal_pos = [0, 8, 0], goal_atti = [0,[1,0,0]], ini_r=[0,-8,0]\
-            ,ini_v_I = [0.0, 0.0, 0.0], ini_q = toQuaternion(0.0,[3,3,5]),horizon = 50):
+            ,ini_v_I = [0.0, 0.0, 0.0], ini_q = toQuaternion(0.0,[3,3,5]),horizon = 20):
         ## definition 
         self.winglen = 1.5
         # goal
@@ -34,7 +34,8 @@ class run_quad:
         # --------------------------- create model1 ----------------------------------------
         self.uav1 = Quadrotor()
         jx, jy, jz = 0.0023, 0.0023, 0.004
-        self.uav1.initDyn(Jx=0.0023,Jy=0.0023,Jz=0.004,mass=0.5,l=0.35,c=0.0245) # hb quadrotor
+        # self.uav1.initDyn(Jx=0.0023,Jy=0.0023,Jz=0.004,mass=0.5,l=0.35,c=0.0245) # hb quadrotor
+        self.uav1.initDyn(Jx=0.000392,Jy=0.000405,Jz=0.000639,mass=0.205,l=0.0775,c=0.0245) # NUSWARM quadrotor
         self.uav1.initCost(wrt=5,wqt=80,wthrust=0.1,wrf=5,wvf=5,wqf=0,wwf=3,goal_pos=self.goal_pos) # wthrust = 0.1
         self.uav1.init_TraCost()
 
@@ -216,6 +217,9 @@ class run_quad:
         self.sol1 = self.uavoc1.ocSolver(ini_state=ini_state,horizon=self.horizon,dt=self.dt, Ulast=Ulast)
         # obtain the control command
         control = self.sol1['control_traj_opt'][0,:]
+
+        # for RPT control
+        PVA= self.sol1['state_traj_opt'][0,:]
         return control
 
 ## sample the perturbation (only for random perturbations)

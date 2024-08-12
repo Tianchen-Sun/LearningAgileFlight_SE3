@@ -325,15 +325,15 @@ class Quadrotor:
         ax.set_ylim(-9, 9)
         ax.set_xlim(-6, 6)
         # ax.set_title(title, pad=20, fontsize=15)
-        for t in ax.xaxis.get_major_ticks(): 
-            t.label.set_font('Times New Roman') 
-            t.label.set_fontsize(7)
-        for t in ax.yaxis.get_major_ticks(): 
-            t.label.set_font('Times New Roman') 
-            t.label.set_fontsize(7)
-        for t in ax.zaxis.get_major_ticks(): 
-            t.label.set_font('Times New Roman') 
-            t.label.set_fontsize(7)
+        # for t in ax.xaxis.get_major_ticks(): 
+        #     t.label.set_font('末那次哦') 
+        #     t.label.set_fontsize(7)
+        # for t in ax.yaxis.get_major_ticks(): 
+        #     t.label.set_font('Times New Roman') 
+        #     t.label.set_fontsize(7)
+        # for t in ax.zaxis.get_major_ticks(): 
+        #     t.label.set_font('Times New Roman') 
+        #     t.label.set_fontsize(7)
 
         # target landing point
         ax.plot([self.goal_r_I[0]], [self.goal_r_I[1]], [self.goal_r_I[2]], c="r", marker="o",markersize=2)

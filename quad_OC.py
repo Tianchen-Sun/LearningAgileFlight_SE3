@@ -143,10 +143,10 @@ class OCSys:
 
             #calculate weight
             weight = 60*casadi.exp(-10*(dt*k-self.t)**2) #gamma should increase as the flight duration decreases
-             
+            #  weight*self.tra_cost_fn(Xk, auxvar_value) + 
             # Integrate till the end of the interval
             Xnext = self.dyn_fn(Xk, Uk,auxvar_value)
-            Ck = weight*self.tra_cost_fn(Xk, auxvar_value) + self.path_cost_fn(Xk, auxvar_value)\
+            Ck = weight*self.tra_cost_fn(Xk, auxvar_value) +self.path_cost_fn(Xk, auxvar_value)\
                 +self.thrust_cost_fn(Uk, auxvar_value) + 1*dot(Uk-Ulast,Uk-Ulast)
             J = J + Ck
 

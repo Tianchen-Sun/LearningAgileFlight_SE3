@@ -53,7 +53,7 @@ def t_output(inputs):
     outputs = np.zeros(7)
     #outputs[5] = math.tan(inputs[6]/2)
     ## traversal time is propotional to the distance of the centroids
-    outputs[6] = np.clip(round(magni(inputs[0:3])/4,1),2,4)
+    outputs[6] = np.clip(round(magni(inputs[0:3])/4,1),0,2)
     return outputs
 
 ## sample a random gate (not necessary in our method) (not important)

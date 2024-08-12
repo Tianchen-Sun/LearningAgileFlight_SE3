@@ -13,7 +13,7 @@ from multiprocessing import Process, Array
 ## deep learning
 # Hyper-parameters 
 
-num_epochs = 1 #100
+num_epochs = 50 #100
 batch_size = 100 # 100
 learning_rate = 1e-4
 num_cores =10 #5
@@ -45,7 +45,7 @@ def grad(inputs, outputs, gra):
     gate_point = gate1.rotate_y_out(inputs[8])
 
     # quadrotor & MPC initialization
-    quad1 = run_quad(goal_pos=inputs[3:6],ini_r=inputs[0:3].tolist(),ini_q=toQuaternion(inputs[6],[0,0,1]))
+    quad1 = run_quad(goal_pos=inputs[3:6],ini_r=inputs[0:3].tolist(),ini_q=toQuaternion(inputs[6],[0,0,1]),horizon=20)
 
     # initialize the narrow window
     quad1.init_obstacle(gate_point.reshape(12))
@@ -73,6 +73,8 @@ if __name__ == '__main__':
                 for _ in range(num_cores):
                 # sample
                     inputs = nn_sample()
+                    inputs[0:3]=np.array([0,1.8,1.4])
+                    inputs[3:6]=np.array([0,-1.8,1.4])
                 # forward pass
                     outputs = model(inputs)
                     out = outputs.data.numpy()
